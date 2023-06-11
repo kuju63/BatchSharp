@@ -1,6 +1,8 @@
 ﻿using BatchSharp;
 using BatchSharp.Example;
+using BatchSharp.Example.Processor;
 using BatchSharp.Example.Reader;
+using BatchSharp.Processor;
 using BatchSharp.Reader;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,7 @@ var builder = Host.CreateDefaultBuilder(args)
         services.AddHostedService<BatchHostedService>()
             .AddScoped<IBatchApplication, ExampleBatchApplication>()
             .AddScoped<IReader<string>, ExampleReader>();
+        services.AddScoped<IProcessor<string, int>, ExampleProcessor>();
     });
 
 var app = builder.Build();
