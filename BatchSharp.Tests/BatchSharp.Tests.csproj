@@ -34,4 +34,7 @@
     <ItemGroup>
         <None Include="..\.editorconfig" />
     </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\BatchSharp\BatchSharp.csproj" />
+    </ItemGroup>
 </Project>

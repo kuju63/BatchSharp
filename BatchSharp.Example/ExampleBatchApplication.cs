@@ -1,3 +1,5 @@
+using BatchSharp.Reader;
+
 using Microsoft.Extensions.Logging;
 
 namespace BatchSharp.Example;
@@ -5,23 +7,15 @@ namespace BatchSharp.Example;
 /// <summary>
 /// Class of example batch application.
 /// </summary>
-public class ExampleBatchApplication : IBatchApplication
+public class ExampleBatchApplication : DefaultBatchApplication<string>
 {
-    private readonly ILogger<ExampleBatchApplication> _logger;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ExampleBatchApplication"/> class.
     /// </summary>
-    /// <param name="logger">logger.</param>
-    public ExampleBatchApplication(ILogger<ExampleBatchApplication> logger)
+    /// <param name="logger">Logger.</param>
+    /// <param name="reader">Reader.</param>
+    public ExampleBatchApplication(ILogger<ExampleBatchApplication> logger, IReader<string> reader)
+        : base(logger, reader)
     {
-        _logger = logger;
-    }
-
-    /// <inheritdoc cref="IBatchApplication.RunAsync"/>
-    public async Task RunAsync(CancellationToken cancellationToken = default)
-    {
-        _logger.LogInformation("Run batch asynchronous process");
-        await Task.Run(() => Thread.Sleep(10000), cancellationToken);
     }
 }
