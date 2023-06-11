@@ -1,5 +1,6 @@
 using BatchSharp.Processor;
 using BatchSharp.Reader;
+using BatchSharp.Writer;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,11 +17,13 @@ public class ExampleBatchApplication : DefaultBatchApplication<string, int>
     /// <param name="logger">Logger.</param>
     /// <param name="reader">Reader.</param>
     /// <param name="processor">Processor.</param>
+    /// <param name="writer">Writer.</param>
     public ExampleBatchApplication(
         ILogger<ExampleBatchApplication> logger,
         IReader<string> reader,
-        IProcessor<string, int> processor)
-        : base(logger, reader, processor)
+        IProcessor<string, int> processor,
+        IWriter<int> writer)
+        : base(logger, reader, processor, writer)
     {
     }
 }

@@ -1,5 +1,6 @@
 using BatchSharp.Processor;
 using BatchSharp.Reader;
+using BatchSharp.Writer;
 
 using Microsoft.Extensions.Logging;
 
@@ -28,16 +29,21 @@ public class DefaultBatchApplicationTest
         var processor = new Mock<IProcessor<string, int>>();
         processor.SetupSequence(x => x.Process(It.IsIn("test")))
             .Returns(4);
+        var writer = new Mock<IWriter<int>>();
+        writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
         var application =
             new DefaultBatchApplication<string, int>(
                 logger.Object,
                 reader.Object,
-                processor.Object);
+                processor.Object,
+                writer.Object);
 
         await application.RunAsync();
 
         reader.Verify((r) => r.Read(), Times.Exactly(2));
         processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
+        writer.Verify(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     /// <summary>
@@ -54,15 +60,19 @@ public class DefaultBatchApplicationTest
             .Returns(new List<string>());
         var processor = new Mock<IProcessor<string, int>>();
         processor.SetupSequence(x => x.Process(It.IsAny<string>()));
+        var writer = new Mock<IWriter<int>>();
+        writer.SetupSequence(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
         var application =
             new DefaultBatchApplication<string, int>(
                 logger.Object,
                 reader.Object,
-                processor.Object);
+                processor.Object,
+                writer.Object);
 
         await application.RunAsync();
 
         reader.Verify(r => r.Read(), Times.Once());
         processor.Verify(x => x.Process(It.IsAny<string>()), Times.Never());
+        writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 }

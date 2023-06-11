@@ -1,5 +1,6 @@
 using BatchSharp.Processor;
 using BatchSharp.Reader;
+using BatchSharp.Writer;
 
 using Microsoft.Extensions.Logging;
 
@@ -17,6 +18,7 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     private readonly ILogger<DefaultBatchApplication<TRead, TResult>> _logger;
     private readonly IReader<TRead> _reader;
     private readonly IProcessor<TRead, TResult> _processor;
+    private readonly IWriter<TResult> _writer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultBatchApplication{TRead, TResult}"/> class.
@@ -24,14 +26,17 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     /// <param name="logger">Logger.</param>
     /// <param name="reader">Reader instance.</param>
     /// <param name="processor">Processor instance.</param>
+    /// <param name="writer">Writer instance.</param>
     public DefaultBatchApplication(
         ILogger<DefaultBatchApplication<TRead, TResult>> logger,
         IReader<TRead> reader,
-        IProcessor<TRead, TResult> processor)
+        IProcessor<TRead, TResult> processor,
+        IWriter<TResult> writer)
     {
         _logger = logger;
         _reader = reader;
         _processor = processor;
+        _writer = writer;
     }
 
     /// <inheritdoc/>
@@ -41,13 +46,14 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
         while ((readData = _reader.Read()).Any())
         {
             await Task.Run(
-                () =>
+                async () =>
                 {
                     foreach (var item in readData)
                     {
                         _logger.LogInformation("Read data: {Item}", item);
                         var processingResult = _processor.Process(item);
                         _logger.LogInformation("Processed data: {Item}", processingResult);
+                        await _writer.WriteAsync(processingResult, cancellationToken);
                     }
                 },
                 cancellationToken);
