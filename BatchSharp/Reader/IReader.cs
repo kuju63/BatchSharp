@@ -4,7 +4,7 @@ namespace BatchSharp.Reader;
 /// Interface for reading data from a source.
 /// </summary>
 /// <typeparam name="T">DataBinding type.</typeparam>
-public interface IReader<out T>
+public interface IReader<out T> : IDisposable
     where T : notnull
 {
     /// <summary>

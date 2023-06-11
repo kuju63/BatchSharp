@@ -17,4 +17,9 @@ public class ExampleReader : IReader<string>
         _index++;
         return result;
     }
+
+    /// <inheritdoc cref="IDisposable.Dispose"/>
+    public void Dispose()
+    {
+    }
 }
