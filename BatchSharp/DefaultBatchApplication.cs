@@ -30,7 +30,7 @@ public class DefaultBatchApplication<TRead> : IBatchApplication
     /// <inheritdoc/>
     public Task RunAsync(CancellationToken cancellationToken = default)
     {
-        List<TRead> readData;
+        IEnumerable<TRead> readData;
         while ((readData = _reader.Read()).Any())
         {
             foreach (var item in readData)

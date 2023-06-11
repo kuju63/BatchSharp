@@ -11,5 +11,5 @@ public interface IReader<T>
     /// Read data from a data source.
     /// </summary>
     /// <returns>Data.</returns>
-    List<T> Read();
+    IEnumerable<T> Read();
 }

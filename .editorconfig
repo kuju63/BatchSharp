@@ -129,6 +129,8 @@ dotnet_diagnostic.SA1309.severity = silent
 # SA1101: Prefix local calls with this
 dotnet_diagnostic.SA1101.severity = silent
 
+dotnet_diagnostic.CA1822.severity = silent
+
 #### .NET Coding Conventions ####
 [*.{cs,vb}]
 

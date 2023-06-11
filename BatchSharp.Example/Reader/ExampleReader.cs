@@ -11,7 +11,7 @@ public class ExampleReader : IReader<string>
     private int _index;
 
     /// <inheritdoc cref="IReader{T}"/>
-    public List<string> Read()
+    public IEnumerable<string> Read()
     {
         var result = _exampleDataSource.Skip(_index).Take(1).ToList();
         _index++;
