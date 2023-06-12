@@ -4,7 +4,7 @@ namespace BatchSharp.Writer;
 /// Interface of writer.
 /// </summary>
 /// <typeparam name="TResult">Type of processing result.</typeparam>
-public interface IWriter<in TResult>
+public interface IWriter<in TResult> : IDisposable
     where TResult : notnull
 {
     /// <summary>

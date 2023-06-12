@@ -27,4 +27,9 @@ public class ExampleWriter : IWriter<int>
         _logger.LogInformation("Write data: {Result}", result);
         return Task.CompletedTask;
     }
+
+    /// <inheritdoc cref="IDisposable.Dispose"/>
+    public void Dispose()
+    {
+    }
 }
