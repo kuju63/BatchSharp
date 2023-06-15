@@ -1,7 +1,7 @@
 namespace BatchSharp.Tests.Mock;
 
 /// <summary>
-/// Sample writer content
+/// Sample writer content.
 /// </summary>
 public class SampleWriterContent
 {
