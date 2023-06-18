@@ -23,21 +23,27 @@ public class FlatFileWriter<T> : IWriter<T>
         _writer = setting.GetWriter();
     }
 
+    /// <inheritdoc/>
+    public Task WriteAsync(T result)
+    {
+        return WriteAsync(result, default);
+    }
+
     /// <summary>
     /// Writes the result to flat file.
     /// </summary>
     /// <param name="result">Output result.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Asynchronous result.</returns>
-    public async Task WriteAsync(T result, CancellationToken cancellationToken = default)
+    public async Task WriteAsync(T result, CancellationToken cancellationToken)
     {
         if (result is string content)
         {
-            await _writer.WriteLineAsync(content);
+            await _writer.WriteLineAsync(content.AsMemory(), cancellationToken);
         }
         else
         {
-            await _writer.WriteLineAsync(result.ToString());
+            await _writer.WriteLineAsync(result.ToString().AsMemory(), cancellationToken);
         }
 
         await _writer.FlushAsync();
