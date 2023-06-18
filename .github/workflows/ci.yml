@@ -1,17 +1,17 @@
 name: CI
 
-on: 
+on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-  
+    branches: ["main"]
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy: 
-        matrix:
-            dotnet-version: ["6.0.x", "7.0.x"]
+    strategy:
+      matrix:
+        dotnet-version: ["6.0.x", "7.0.x"]
     steps:
       - uses: actions/checkout@v3
       - name: Setup
@@ -34,4 +34,10 @@ jobs:
       - name: Build
         run: dotnet build --no-restore
       - name: Test
-        run: dotnet test --no-restore
+        run: dotnet test --no-restore --collect:"XPlat Code Coverage"
+      - name: Upload coverage
+        uses: codacy/codacy-coverage-reporter-action@v1
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: BatchSharp.Tests/TestResults/*/coverage.cobertura.xml
+          language: csharp
