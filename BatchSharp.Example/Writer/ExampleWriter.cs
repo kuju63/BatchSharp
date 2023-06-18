@@ -22,7 +22,13 @@ public class ExampleWriter : IWriter<int>
     }
 
     /// <inheritdoc cref="IWriter{TResult}.WriteAsync"/>
-    public Task WriteAsync(int result, CancellationToken cancellationToken = default)
+    public Task WriteAsync(int result)
+    {
+        return WriteAsync(result, default);
+    }
+
+    /// <inheritdoc cref="IWriter{TResult}.WriteAsync"/>
+    public Task WriteAsync(int result, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Write data: {Result}", result);
         return Task.CompletedTask;
