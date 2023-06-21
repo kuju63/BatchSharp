@@ -13,13 +13,42 @@ public class FlatFileReaderSetting : IFileReaderSetting
     /// Initializes a new instance of the <see cref="FlatFileReaderSetting"/> class.
     /// </summary>
     /// <param name="filePath">Input file path.</param>
+    public FlatFileReaderSetting(string filePath)
+        : this(filePath, 1, Encoding.UTF8)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FlatFileReaderSetting"/> class.
+    /// </summary>
+    /// <param name="filePath">Input file path.</param>
+    /// <param name="lineReadCount">Read line count.</param>
+    public FlatFileReaderSetting(string filePath, int lineReadCount)
+        : this(filePath, lineReadCount, Encoding.UTF8)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FlatFileReaderSetting"/> class.
+    /// </summary>
+    /// <param name="filePath">Input file path.</param>
+    /// <param name="encoding">Input file encoding.</param>
+    public FlatFileReaderSetting(string filePath, Encoding encoding)
+        : this(filePath, 1, encoding)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FlatFileReaderSetting"/> class.
+    /// </summary>
+    /// <param name="filePath">Input file path.</param>
     /// <param name="lineReadCount">Read line count.</param>
     /// <param name="encoding">Input file character encoding.</param>
-    public FlatFileReaderSetting(string filePath, int lineReadCount = 1, Encoding? encoding = null)
+    public FlatFileReaderSetting(string filePath, int lineReadCount, Encoding encoding)
     {
         _filePath = filePath;
         LineReadCount = lineReadCount;
-        FileEncoding = encoding ?? Encoding.UTF8;
+        FileEncoding = encoding;
     }
 
     /// <summary>
