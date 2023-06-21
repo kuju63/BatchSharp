@@ -1,0 +1,81 @@
+name: Package release
+
+on:
+  workflow_dispatch: 
+    inputs: 
+      release_version: 
+        description: 'Release version without "v".'
+        required: true
+        type: string
+      test:
+        description: 'Test flag'
+        required: false
+        default: false
+        type: boolean
+      create_release:
+        description: "Need create GitHub Release"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Packaging
+        run: dotnet pack --no-restore --output nupkgs -p:PackageVersion=${{ inputs.release_version }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: BatchSharp
+          path: nupkgs/*.nupkg
+          if-no-files-found: error
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: BatchSharp
+      - name: Publish NuGet IT
+        if: inputs.test
+        run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_IT_SERVER }} --api-key ${{ secrets.NUGET_IT_API_KEY }}
+      - name: Publish NuGet
+        if: ${{ !inputs.test }}
+        run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_SERVER }} --api-key ${{ secrets.NUGET_API_KEY }}
+  release:
+    runs-on: ubuntu-latest
+    if: inputs.create_release
+    needs: build
+    permissions: 
+      contents: write
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: BatchSharp
+      - name: Create Release
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+        with:
+          tag_name: v${{ inputs.release_version }}
+          release_name: v${{ inputs.release_version }}
+          generateReleaseNotes: true
+          artifacts: "*.nupkg"
+          draft: ${{ inputs.test }}
