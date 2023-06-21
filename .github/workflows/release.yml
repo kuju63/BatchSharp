@@ -54,7 +54,7 @@ jobs:
           name: BatchSharp
       - name: Publish NuGet IT
         if: inputs.test
-        run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_IT_SERVER }} --api-key ${{ secrets.NUGET_IT_API_KEY }}
+        run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_IT_SERVER }} --api-key ${{ secrets.GITHUB_TOKEN }}
       - name: Publish NuGet
         if: ${{ !inputs.test }}
         run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_SERVER }} --api-key ${{ secrets.NUGET_API_KEY }}
