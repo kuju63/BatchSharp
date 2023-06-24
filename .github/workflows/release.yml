@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      pre_release:
+        description: "Create GitHub Release as pre-release"
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -82,3 +87,4 @@ jobs:
           generateReleaseNotes: true
           artifacts: "*.nupkg"
           draft: ${{ inputs.draft_release }}
+          prerelease: ${{ inputs.pre_release }}
