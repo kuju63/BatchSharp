@@ -60,10 +60,10 @@ jobs:
         with:
           name: BatchSharp
       - name: Publish NuGet IT
-        if: inputs.create_release
+        if: ${{ !inputs.create_release }}
         run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_IT_SERVER }} --api-key ${{ secrets.GITHUB_TOKEN }}
       - name: Publish NuGet
-        if: ${{ !inputs.create_release }}
+        if: inputs.create_release
         run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_SERVER }} --api-key ${{ secrets.NUGET_API_KEY }}
   release:
     runs-on: ubuntu-latest
