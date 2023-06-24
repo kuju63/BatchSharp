@@ -7,13 +7,13 @@ on:
         description: 'Release version without "v".'
         required: true
         type: string
-      test:
-        description: 'Test flag'
-        required: false
-        default: false
-        type: boolean
       create_release:
         description: "Need create GitHub Release"
+        required: false
+        type: boolean
+        default: false
+      draft_release:
+        description: "Create GitHub Release as draft"
         required: false
         type: boolean
         default: false
@@ -55,10 +55,10 @@ jobs:
         with:
           name: BatchSharp
       - name: Publish NuGet IT
-        if: inputs.test
+        if: inputs.create_release
         run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_IT_SERVER }} --api-key ${{ secrets.GITHUB_TOKEN }}
       - name: Publish NuGet
-        if: ${{ !inputs.test }}
+        if: ${{ !inputs.create_release }}
         run: dotnet nuget push *.nupkg --source ${{ vars.NUGET_SERVER }} --api-key ${{ secrets.NUGET_API_KEY }}
   release:
     runs-on: ubuntu-latest
@@ -81,4 +81,4 @@ jobs:
           tag: v${{ inputs.release_version }}
           generateReleaseNotes: true
           artifacts: "*.nupkg"
-          draft: ${{ inputs.test }}
+          draft: ${{ inputs.draft_release }}
