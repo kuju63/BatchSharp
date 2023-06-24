@@ -78,6 +78,7 @@ jobs:
         with:
           name: v${{ inputs.release_version }}
           commit: ${{ github.sha }}
+          tag: v${{ inputs.release_version }}
           generateReleaseNotes: true
           artifacts: "*.nupkg"
           draft: ${{ inputs.test }}
