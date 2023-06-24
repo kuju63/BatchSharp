@@ -76,8 +76,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
         with:
-          tag_name: v${{ inputs.release_version }}
-          release_name: v${{ inputs.release_version }}
+          name: v${{ inputs.release_version }}
+          commit: ${{ github.sha }}
           generateReleaseNotes: true
           artifacts: "*.nupkg"
           draft: ${{ inputs.test }}
