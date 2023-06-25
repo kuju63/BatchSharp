@@ -13,9 +13,18 @@ public class FileWriterSetting : IFileWriterSetting
     /// <summary>
     /// Initializes a new instance of the <see cref="FileWriterSetting"/> class.
     /// </summary>
+    /// <param name="filePath">Output file path.</param>
+    public FileWriterSetting(string filePath)
+        : this(filePath, Encoding.UTF8)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileWriterSetting"/> class.
+    /// </summary>
     /// <param name="filePath">output file path.</param>
     /// <param name="encoding">Output file encoding.</param>
-    public FileWriterSetting(string filePath, Encoding? encoding = null)
+    public FileWriterSetting(string filePath, Encoding encoding)
     {
         _filePath = filePath;
         _encoding = encoding ?? Encoding.UTF8;
