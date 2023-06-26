@@ -36,8 +36,23 @@ jobs:
       - name: Test
         run: dotnet test --no-restore --collect:"XPlat Code Coverage"
       - name: Upload coverage
-        uses: codacy/codacy-coverage-reporter-action@v1
+        uses: actions/upload-artifact@v3
         with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: BatchSharp.Tests/TestResults/*/coverage.cobertura.xml
-          language: csharp
+          name: coverage
+          path: BatchSharp.Tests/TestResults/*/coverage.cobertura.xml
+
+  coverage:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env: 
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          fail_ci_if_error: true
+          flags: unittests
