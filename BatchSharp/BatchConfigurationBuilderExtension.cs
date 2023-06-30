@@ -21,7 +21,45 @@ public static class BatchConfigurationBuilderExtension
             "Prod",
             Directory.GetCurrentDirectory(),
             "BATCH_",
-            "batchApplication");
+            "application");
+    }
+
+    /// <summary>
+    /// Add batch configuration to the configuration builder.
+    /// </summary>
+    /// <param name="builder">Configuration builder.</param>
+    /// <param name="environmentName">Environment name.</param>
+    /// <returns>Configuration builder.</returns>
+    public static IConfigurationBuilder AddBatchConfiguration(
+        this IConfigurationBuilder builder,
+        string environmentName)
+    {
+        return Configure(
+            builder,
+            environmentName,
+            Directory.GetCurrentDirectory(),
+            "BATCH_",
+            "application");
+    }
+
+    /// <summary>
+    /// Add batch configuration to the configuration builder.
+    /// </summary>
+    /// <param name="builder">Configuration builder.</param>
+    /// <param name="environmentName">Environment name.</param>
+    /// <param name="environmentVariablePrefix">Prefix of environment variables for configuration.</param>
+    /// <returns>Configuration builder.</returns>
+    public static IConfigurationBuilder AddBatchConfiguration(
+        this IConfigurationBuilder builder,
+        string environmentName,
+        string environmentVariablePrefix)
+    {
+        return Configure(
+            builder,
+            environmentName,
+            Directory.GetCurrentDirectory(),
+            environmentVariablePrefix,
+            "application");
     }
 
     /// <summary>
@@ -29,34 +67,32 @@ public static class BatchConfigurationBuilderExtension
     /// </summary>
     /// <param name="builder">Configuration builder.</param>
     /// <param name="environment">Host environment context.</param>
-    /// <param name="basePath">Base path.</param>
-    /// <param name="prefix">Prefix for environment variables.</param>
-    /// <param name="jsonFilePrefix">Prefix for json file of configuration.</param>
+    /// <param name="environmentVariablePrefix">Prefix of environment variables for configuration.</param>
+    /// <param name="configFilePrefix">Prefix of JSON file name.</param>
     /// <returns>Configuration builder.</returns>
     public static IConfigurationBuilder AddBatchConfiguration(
         this IConfigurationBuilder builder,
         IHostEnvironment environment,
-        string? basePath = null,
-        string prefix = "BATCH_",
-        string jsonFilePrefix = "batchApplication")
+        string environmentVariablePrefix,
+        string configFilePrefix)
     {
         return Configure(
             builder,
             environment.EnvironmentName,
-            basePath ?? Directory.GetCurrentDirectory(),
-            prefix,
-            jsonFilePrefix);
+            Directory.GetCurrentDirectory(),
+            environmentVariablePrefix,
+            configFilePrefix);
     }
 
     private static IConfigurationBuilder Configure(
         IConfigurationBuilder builder,
         string environmentName,
         string basePath,
-        string prefix,
+        string environmentVariablePrefix,
         string jsonFilePrefix)
     {
         builder.SetBasePath(basePath);
-        builder.AddEnvironmentVariables(prefix);
+        builder.AddEnvironmentVariables(environmentVariablePrefix);
         builder.AddJsonFile(
             $"{jsonFilePrefix}.json",
             optional: true,
