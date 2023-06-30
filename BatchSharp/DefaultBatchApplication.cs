@@ -40,12 +40,28 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     }
 
     /// <inheritdoc/>
-    public async Task RunAsync(CancellationToken cancellationToken = default)
+    public async Task RunAsync()
     {
         IEnumerable<TRead> readData;
         while ((readData = _reader.Read()).Any())
         {
-            await Task.Run(
+            await RunAsync(readData, default);
+        }
+    }
+
+    /// <inheritdoc/>
+    public async Task RunAsync(CancellationToken cancellationToken)
+    {
+        IEnumerable<TRead> readData;
+        while ((readData = _reader.Read()).Any())
+        {
+            await RunAsync(readData, cancellationToken);
+        }
+    }
+
+    private Task RunAsync(IEnumerable<TRead> readData, CancellationToken cancellationToken)
+    {
+        return Task.Run(
                 async () =>
                 {
                     foreach (var item in readData)
@@ -57,6 +73,5 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
                     }
                 },
                 cancellationToken);
-        }
     }
 }
