@@ -2,6 +2,8 @@ using System.Text;
 
 using BatchSharp.Reader;
 
+using FluentAssertions;
+
 namespace BatchSharp.Tests.Reader;
 
 /// <summary>
@@ -17,8 +19,9 @@ public class FlatFileReaderSettingTest
     public void ShouldInitializeSucceed()
     {
         var setting = new FlatFileReaderSetting("file.txt");
-        Assert.Equal(1, setting.LineReadCount);
-        Assert.Equal(Encoding.UTF8, setting.FileEncoding);
+
+        setting.LineReadCount.Should().Be(1);
+        setting.FileEncoding.Should().Be(Encoding.UTF8);
     }
 
     /// <summary>
@@ -28,8 +31,9 @@ public class FlatFileReaderSettingTest
     public void ShouldInitializeNewInstanceWithLineReadCount()
     {
         var setting = new FlatFileReaderSetting("file.txt", 100);
-        Assert.Equal(100, setting.LineReadCount);
-        Assert.Equal(Encoding.UTF8, setting.FileEncoding);
+
+        setting.LineReadCount.Should().Be(100);
+        setting.FileEncoding.Should().Be(Encoding.UTF8);
     }
 
     /// <summary>
@@ -39,8 +43,9 @@ public class FlatFileReaderSettingTest
     public void ShouldInitializeNewInstanceWithFileEncoding()
     {
         var setting = new FlatFileReaderSetting("file.txt", Encoding.ASCII);
-        Assert.Equal(1, setting.LineReadCount);
-        Assert.Equal(Encoding.ASCII, setting.FileEncoding);
+
+        setting.LineReadCount.Should().Be(1);
+        setting.FileEncoding.Should().Be(Encoding.ASCII);
     }
 
     /// <summary>
@@ -51,8 +56,8 @@ public class FlatFileReaderSettingTest
     public void ShouldInitializeSucceedWithOptionalParams()
     {
         var setting = new FlatFileReaderSetting("file.txt", 100, Encoding.ASCII);
-        Assert.Equal(100, setting.LineReadCount);
-        Assert.Equal(Encoding.ASCII, setting.FileEncoding);
+        setting.LineReadCount.Should().Be(100);
+        setting.FileEncoding.Should().Be(Encoding.ASCII);
     }
 
     /// <summary>
@@ -63,6 +68,6 @@ public class FlatFileReaderSettingTest
     public void ShouldThrowFileNotFoundException()
     {
         var setting = new FlatFileReaderSetting("file.txt");
-        Assert.Throws<FileNotFoundException>(() => setting.GetStreamReader());
+        setting.Invoking(x => x.GetStreamReader()).Should().Throw<FileNotFoundException>();
     }
 }
