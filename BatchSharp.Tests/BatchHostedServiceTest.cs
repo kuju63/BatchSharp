@@ -1,3 +1,5 @@
+using FluentAssertions;
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -31,7 +33,7 @@ public class BatchHostedServiceTest
         var result = batchHostedService.StartAsync(CancellationToken.None);
 
         // Assert
-        Assert.True(result.IsCompleted);
+        result.IsCompleted.Should().BeTrue();
     }
 
     /// <summary>
@@ -50,6 +52,6 @@ public class BatchHostedServiceTest
         var result = batchHostedService.StopAsync(CancellationToken.None);
 
         // Assert
-        Assert.True(result.IsCompleted);
+        result.IsCompleted.Should().BeTrue();
     }
 }
