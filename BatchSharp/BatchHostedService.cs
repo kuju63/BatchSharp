@@ -6,11 +6,12 @@ namespace BatchSharp;
 /// <summary>
 /// Class of batch host service.
 /// </summary>
-public sealed class BatchHostedService : IHostedService
+public sealed class BatchHostedService : IHostedService, IDisposable
 {
     private readonly ILogger<BatchHostedService> _logger;
     private readonly IHostApplicationLifetime _appLifetime;
     private readonly IBatchApplication _batchApplication;
+    private readonly CancellationTokenSource _cancellationTokenSource = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BatchHostedService"/> class.
@@ -45,6 +46,13 @@ public sealed class BatchHostedService : IHostedService
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
+    }
+
     private void OnStopped()
     {
         _logger.LogInformation("Stop batch application");
@@ -53,12 +61,13 @@ public sealed class BatchHostedService : IHostedService
     private void OnStopping()
     {
         _logger.LogInformation("Batch application is stopping");
+        _cancellationTokenSource.Cancel();
     }
 
     private void OnStarted()
     {
         _logger.LogInformation("Batch application is started");
-        _batchApplication.RunAsync().Wait();
+        _batchApplication.RunAsync(_cancellationTokenSource.Token).Wait();
         _appLifetime.StopApplication();
     }
 }
