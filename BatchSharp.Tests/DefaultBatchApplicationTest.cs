@@ -13,6 +13,10 @@ namespace BatchSharp.Tests;
 /// </summary>
 public class DefaultBatchApplicationTest
 {
+    private readonly Mock<IReader<string>> _reader = new();
+    private readonly Mock<IProcessor<string, int>> _processor = new();
+    private readonly Mock<IWriter<int>> _writer = new();
+
     /// <summary>
     /// Test for <see cref="DefaultBatchApplication{TRead,TResult}.RunAsync"/>.
     /// If reader returns single element list, should return completed.
@@ -22,28 +26,26 @@ public class DefaultBatchApplicationTest
     public async Task ShouldReturnCompletedWhenReadSingleAsync()
     {
         var logger = new Mock<ILogger<DefaultBatchApplication<string, int>>>();
-        var reader = new Mock<IReader<string>>();
-        reader.SetupSequence(x => x.Read())
+        _reader.SetupSequence(x => x.Read())
             .Returns(new List<string> { "test" })
             .Returns(new List<string>());
-        var processor = new Mock<IProcessor<string, int>>();
-        processor.SetupSequence(x => x.Process(It.IsIn("test")))
+
+        _processor.SetupSequence(x => x.Process(It.IsIn("test")))
             .Returns(4);
-        var writer = new Mock<IWriter<int>>();
-        writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
+        _writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         var application =
             new DefaultBatchApplication<string, int>(
                 logger.Object,
-                reader.Object,
-                processor.Object,
-                writer.Object);
+                _reader.Object,
+                _processor.Object,
+                _writer.Object);
 
         await application.RunAsync();
 
-        reader.Verify((r) => r.Read(), Times.Exactly(2));
-        processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
-        writer.Verify(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()), Times.Once());
+        _reader.Verify((r) => r.Read(), Times.Exactly(2));
+        _processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
+        _writer.Verify(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()), Times.Once());
     }
 
     /// <summary>
@@ -55,25 +57,22 @@ public class DefaultBatchApplicationTest
     public async Task ShouldReturnCompletedWhenReadEmptyAsync()
     {
         var logger = new Mock<ILogger<DefaultBatchApplication<string, int>>>();
-        var reader = new Mock<IReader<string>>();
-        reader.SetupSequence(x => x.Read())
+        _reader.SetupSequence(x => x.Read())
             .Returns(new List<string>());
-        var processor = new Mock<IProcessor<string, int>>();
-        processor.SetupSequence(x => x.Process(It.IsAny<string>()));
-        var writer = new Mock<IWriter<int>>();
-        writer.SetupSequence(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
+        _processor.SetupSequence(x => x.Process(It.IsAny<string>()));
+        _writer.SetupSequence(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
         var application =
             new DefaultBatchApplication<string, int>(
                 logger.Object,
-                reader.Object,
-                processor.Object,
-                writer.Object);
+                _reader.Object,
+                _processor.Object,
+                _writer.Object);
 
         await application.RunAsync();
 
-        reader.Verify(r => r.Read(), Times.Once());
-        processor.Verify(x => x.Process(It.IsAny<string>()), Times.Never());
-        writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
+        _reader.Verify(r => r.Read(), Times.Once());
+        _processor.Verify(x => x.Process(It.IsAny<string>()), Times.Never());
+        _writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
     }
 
     /// <summary>
@@ -84,27 +83,24 @@ public class DefaultBatchApplicationTest
     public async Task ShouldReturnCompletedWhenReadSingleWithCancellationTokenAsync()
     {
         var logger = new Mock<ILogger<DefaultBatchApplication<string, int>>>();
-        var reader = new Mock<IReader<string>>();
-        reader.SetupSequence(x => x.Read())
+        _reader.SetupSequence(x => x.Read())
             .Returns(new List<string> { "test" })
             .Returns(new List<string>());
-        var processor = new Mock<IProcessor<string, int>>();
-        processor.SetupSequence(x => x.Process(It.IsIn("test")))
+        _processor.SetupSequence(x => x.Process(It.IsIn("test")))
             .Returns(4);
-        var writer = new Mock<IWriter<int>>();
-        writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
+        _writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         var application =
             new DefaultBatchApplication<string, int>(
                 logger.Object,
-                reader.Object,
-                processor.Object,
-                writer.Object);
+                _reader.Object,
+                _processor.Object,
+                _writer.Object);
         using var cancellationTokenSource = new CancellationTokenSource();
         await application.RunAsync(cancellationTokenSource.Token);
 
-        reader.Verify((r) => r.Read(), Times.Exactly(2));
-        processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
-        writer.Verify(x => x.WriteAsync(It.IsIn(4), cancellationTokenSource.Token), Times.Once());
+        _reader.Verify((r) => r.Read(), Times.Exactly(2));
+        _processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
+        _writer.Verify(x => x.WriteAsync(It.IsIn(4), cancellationTokenSource.Token), Times.Once());
     }
 }
