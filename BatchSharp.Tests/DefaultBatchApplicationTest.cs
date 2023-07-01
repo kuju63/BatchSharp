@@ -103,4 +103,30 @@ public class DefaultBatchApplicationTest
         _processor.Verify(p => p.Process(It.IsIn("test")), Times.Once());
         _writer.Verify(x => x.WriteAsync(It.IsIn(4), cancellationTokenSource.Token), Times.Once());
     }
+
+    /// <summary>
+    /// Test for <see cref="DefaultBatchApplication{TRead,TResult}.RunAsync"/>.
+    /// </summary>
+    /// <returns>Asynchronous task.</returns>
+    [Fact]
+    public async Task ShouldReturnCancelledAsync()
+    {
+        var logger = new Mock<ILogger<DefaultBatchApplication<string, int>>>();
+        _reader.Setup(x => x.Read());
+        _processor.Setup(x => x.Process(It.IsAny<string>()));
+        _writer.Setup(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
+        var application =
+            new DefaultBatchApplication<string, int>(
+                logger.Object,
+                _reader.Object,
+                _processor.Object,
+                _writer.Object);
+        using var cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource.Cancel();
+        await Assert.ThrowsAsync<TaskCanceledException>(() => application.RunAsync(cancellationTokenSource.Token));
+
+        _reader.Verify(r => r.Read(), Times.Never());
+        _processor.Verify(x => x.Process(It.IsAny<string>()), Times.Never());
+        _writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
+    }
 }
