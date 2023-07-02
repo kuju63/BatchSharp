@@ -2,6 +2,8 @@ using System.Text;
 
 using BatchSharp.Reader;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging;
 
 using Moq;
@@ -13,6 +15,9 @@ namespace BatchSharp.Tests.Reader;
 /// </summary>
 public class FlatFileReaderTest
 {
+    private readonly Mock<ILogger<FlatFileReader>> _logger = new();
+    private readonly Mock<IFileReaderSetting> _setting = new();
+
     /// <summary>
     /// Test for <see cref="FlatFileReader.Read"/>.
     /// It is expected to return empty list.
@@ -21,21 +26,19 @@ public class FlatFileReaderTest
     public void ShouldReturnEmptyWhenFileIsEmpty()
     {
         // Arrange
-        var logger = new Mock<ILogger<FlatFileReader>>();
-        var setting = new Mock<IFileReaderSetting>();
         using var fileReader = new StreamReader(new MemoryStream());
-        setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
-        setting.SetupGet(x => x.LineReadCount).Returns(1);
-        using var reader = new FlatFileReader(logger.Object, setting.Object);
+        _setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
+        _setting.SetupGet(x => x.LineReadCount).Returns(1);
+        using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
         var result = reader.Read();
 
         // Assert
-        Assert.Empty(result);
+        result.Should().BeEmpty().And.BeAssignableTo<IEnumerable<string>>();
 
-        setting.Verify(x => x.GetStreamReader(), Times.Once);
-        setting.VerifyGet(x => x.LineReadCount, Times.Never);
+        _setting.Verify(x => x.GetStreamReader(), Times.Once);
+        _setting.VerifyGet(x => x.LineReadCount, Times.Never);
     }
 
     /// <summary>
@@ -46,22 +49,20 @@ public class FlatFileReaderTest
     public void ShouldReturnSingleLineWhenFileHasSingleLine()
     {
         // Arrange
-        var logger = new Mock<ILogger<FlatFileReader>>();
-        var setting = new Mock<IFileReaderSetting>();
         var line = "012345"u8.ToArray();
         using var fileReader = new StreamReader(new MemoryStream(line));
-        setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
-        setting.SetupGet(x => x.LineReadCount).Returns(1);
-        using var reader = new FlatFileReader(logger.Object, setting.Object);
+        _setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
+        _setting.SetupGet(x => x.LineReadCount).Returns(1);
+        using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
         var result = reader.Read();
 
         // Assert
-        Assert.Collection(result, v => Assert.Equal("012345", v));
+        result.Should().Equal("012345").And.BeAssignableTo<IEnumerable<string>>();
 
-        setting.Verify(x => x.GetStreamReader(), Times.Once);
-        setting.VerifyGet(x => x.LineReadCount);
+        _setting.Verify(x => x.GetStreamReader(), Times.Once);
+        _setting.VerifyGet(x => x.LineReadCount);
     }
 
     /// <summary>
@@ -72,24 +73,19 @@ public class FlatFileReaderTest
     public void ShouldReturnMultiLine()
     {
         // Arrange
-        var logger = new Mock<ILogger<FlatFileReader>>();
-        var setting = new Mock<IFileReaderSetting>();
         var line = Encoding.UTF8.GetBytes($"012345{Environment.NewLine}98765");
         using var fileReader = new StreamReader(new MemoryStream(line));
-        setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
-        setting.SetupGet(x => x.LineReadCount).Returns(2);
-        using var reader = new FlatFileReader(logger.Object, setting.Object);
+        _setting.Setup(x => x.GetStreamReader()).Returns(fileReader);
+        _setting.SetupGet(x => x.LineReadCount).Returns(2);
+        using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
         var result = reader.Read();
 
         // Assert
-        Assert.Collection(
-            result,
-            v => Assert.Equal("012345", v),
-            v => Assert.Equal("98765", v));
+        result.Should().Equal("012345", "98765").And.BeAssignableTo<IEnumerable<string>>();
 
-        setting.Verify(x => x.GetStreamReader(), Times.Once);
-        setting.VerifyGet(x => x.LineReadCount);
+        _setting.Verify(x => x.GetStreamReader(), Times.Once);
+        _setting.VerifyGet(x => x.LineReadCount);
     }
 }
