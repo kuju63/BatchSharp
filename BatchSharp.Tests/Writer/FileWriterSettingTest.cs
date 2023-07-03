@@ -2,8 +2,6 @@ using System.Text;
 
 using BatchSharp.Writer;
 
-using FluentAssertions;
-
 namespace BatchSharp.Tests.Writer;
 
 /// <summary>

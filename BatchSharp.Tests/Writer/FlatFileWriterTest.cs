@@ -4,8 +4,6 @@ using System.Text;
 using BatchSharp.Tests.Mock;
 using BatchSharp.Writer;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging;
 
 using Moq;

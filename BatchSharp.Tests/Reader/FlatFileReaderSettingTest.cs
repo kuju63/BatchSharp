@@ -2,8 +2,6 @@ using System.Text;
 
 using BatchSharp.Reader;
 
-using FluentAssertions;
-
 namespace BatchSharp.Tests.Reader;
 
 /// <summary>

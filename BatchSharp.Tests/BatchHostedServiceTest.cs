@@ -1,5 +1,3 @@
-using FluentAssertions;
-
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 

@@ -2,8 +2,6 @@ using System.Text;
 
 using BatchSharp.Reader;
 
-using FluentAssertions;
-
 using Microsoft.Extensions.Logging;
 
 using Moq;
