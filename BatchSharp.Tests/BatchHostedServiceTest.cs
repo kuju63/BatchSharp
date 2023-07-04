@@ -8,11 +8,23 @@ namespace BatchSharp.Tests;
 /// <summary>
 /// Test class of <see cref="BatchHostedService"/>.
 /// </summary>
-public class BatchHostedServiceTest
+public class BatchHostedServiceTest : IDisposable
 {
     private readonly Mock<ILogger<BatchHostedService>> _logger = new();
     private readonly Mock<IHostApplicationLifetime> _appLifetime = new();
     private readonly Mock<IBatchApplication> _batchApplication = new();
+    private readonly BatchHostedService _hostedService;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BatchHostedServiceTest"/> class.
+    /// </summary>
+    public BatchHostedServiceTest()
+    {
+        _hostedService = new BatchHostedService(
+            _logger.Object,
+            _appLifetime.Object,
+            _batchApplication.Object);
+    }
 
     /// <summary>
     /// Test <see cref="BatchHostedService.StartAsync(CancellationToken)"/>.
@@ -21,17 +33,11 @@ public class BatchHostedServiceTest
     [Fact]
     public void ShouldReturnTaskCompletedWhenStartAsync()
     {
-        // Arrange
-        using var batchHostedService = new BatchHostedService(
-            _logger.Object,
-            _appLifetime.Object,
-            _batchApplication.Object);
-
         // Act
-        var result = batchHostedService.StartAsync(CancellationToken.None);
+        var result = _hostedService.StartAsync(CancellationToken.None);
 
         // Assert
-        Assert.True(result.IsCompleted);
+        result.IsCompleted.Should().BeTrue();
     }
 
     /// <summary>
@@ -40,16 +46,19 @@ public class BatchHostedServiceTest
     [Fact]
     public void ShouldReturnTaskCompletedWhenStopAsync()
     {
-        // Arrange
-        using var batchHostedService = new BatchHostedService(
-            _logger.Object,
-            _appLifetime.Object,
-            _batchApplication.Object);
-
         // Act
-        var result = batchHostedService.StopAsync(CancellationToken.None);
+        var result = _hostedService.StopAsync(CancellationToken.None);
 
         // Assert
-        Assert.True(result.IsCompleted);
+        result.IsCompleted.Should().BeTrue();
+    }
+
+    /// <summary>
+    /// Releases all resources used by the <see cref="BatchHostedServiceTest"/> class.
+    /// </summary>
+    public void Dispose()
+    {
+        _hostedService.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

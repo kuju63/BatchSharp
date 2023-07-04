@@ -13,8 +13,22 @@ namespace BatchSharp.Tests.Writer;
 /// <summary>
 /// Test class for <see cref="FlatFileWriter{T}"/>.
 /// </summary>
-public class FlatFileWriterTest
+public class FlatFileWriterTest : IDisposable
 {
+    private readonly Mock<IFileWriterSetting> _setting = new();
+    private readonly MemoryStream _memoryStream = new();
+    private readonly StreamWriter _streamWriter;
+    private readonly IMemoryOwner<byte> _buffer = MemoryPool<byte>.Shared.Rent();
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FlatFileWriterTest"/> class.
+    /// </summary>
+    public FlatFileWriterTest()
+    {
+        _streamWriter = new StreamWriter(_memoryStream);
+        _setting.Setup(p => p.GetWriter()).Returns(_streamWriter);
+    }
+
     /// <summary>
     /// Test for writing string content.
     /// </summary>
@@ -23,18 +37,16 @@ public class FlatFileWriterTest
     public async Task ShouldWriteStringContentAsync()
     {
         var logger = new Mock<ILogger<FlatFileWriter<string>>>();
-        var setting = new Mock<IFileWriterSetting>();
-        using var mem = new MemoryStream();
-        await using var baseWriter = new StreamWriter(mem);
-        setting.Setup(p => p.GetWriter()).Returns(baseWriter);
-        using var writer = new FlatFileWriter<string>(logger.Object, setting.Object);
+        using var writer = new FlatFileWriter<string>(logger.Object, _setting.Object);
         await writer.WriteAsync("test");
 
-        mem.Seek(0, SeekOrigin.Begin);
-        using var buffer = MemoryPool<byte>.Shared.Rent();
-        var length = await mem.ReadAsync(buffer.Memory);
-        var content = Encoding.UTF8.GetString(buffer.Memory.Span[..length]);
-        Assert.Equal($"test{Environment.NewLine}", content);
+        _memoryStream.Seek(0, SeekOrigin.Begin);
+        var length = await _memoryStream.ReadAsync(_buffer.Memory);
+        var content = Encoding.UTF8.GetString(_buffer.Memory.Span[..length]);
+
+        content.Should().Be($"test{Environment.NewLine}");
+
+        _setting.Verify(p => p.GetWriter(), Times.Once);
     }
 
     /// <summary>
@@ -45,18 +57,16 @@ public class FlatFileWriterTest
     public async Task ShouldWriteToStringContentAsync()
     {
         var logger = new Mock<ILogger<FlatFileWriter<SampleWriterContent>>>();
-        var setting = new Mock<IFileWriterSetting>();
-        using var mem = new MemoryStream();
-        await using var baseWriter = new StreamWriter(mem);
-        setting.Setup(p => p.GetWriter()).Returns(baseWriter);
-        using var writer = new FlatFileWriter<SampleWriterContent>(logger.Object, setting.Object);
+        using var writer = new FlatFileWriter<SampleWriterContent>(logger.Object, _setting.Object);
         await writer.WriteAsync(new SampleWriterContent());
 
-        mem.Seek(0, SeekOrigin.Begin);
-        using var buffer = MemoryPool<byte>.Shared.Rent();
-        var length = await mem.ReadAsync(buffer.Memory);
-        var content = Encoding.UTF8.GetString(buffer.Memory.Span[..length]);
-        Assert.Equal($"test{Environment.NewLine}", content);
+        _memoryStream.Seek(0, SeekOrigin.Begin);
+        var length = await _memoryStream.ReadAsync(_buffer.Memory);
+        var content = Encoding.UTF8.GetString(_buffer.Memory.Span[..length]);
+
+        content.Should().Be($"test{Environment.NewLine}");
+
+        _setting.Verify(p => p.GetWriter(), Times.Once);
     }
 
     /// <summary>
@@ -67,17 +77,26 @@ public class FlatFileWriterTest
     public async Task ShouldWriteContentWithCancellationTokenAsync()
     {
         var logger = new Mock<ILogger<FlatFileWriter<SampleWriterContent>>>();
-        var setting = new Mock<IFileWriterSetting>();
-        using var mem = new MemoryStream();
-        await using var baseWriter = new StreamWriter(mem);
-        setting.Setup(p => p.GetWriter()).Returns(baseWriter);
-        using var writer = new FlatFileWriter<SampleWriterContent>(logger.Object, setting.Object);
+        using var writer = new FlatFileWriter<SampleWriterContent>(logger.Object, _setting.Object);
         await writer.WriteAsync(new SampleWriterContent(), CancellationToken.None);
 
-        mem.Seek(0, SeekOrigin.Begin);
-        using var buffer = MemoryPool<byte>.Shared.Rent();
-        var length = await mem.ReadAsync(buffer.Memory);
-        var content = Encoding.UTF8.GetString(buffer.Memory.Span[..length]);
-        Assert.Equal($"test{Environment.NewLine}", content);
+        _memoryStream.Seek(0, SeekOrigin.Begin);
+        var length = await _memoryStream.ReadAsync(_buffer.Memory);
+        var content = Encoding.UTF8.GetString(_buffer.Memory.Span[..length]);
+
+        content.Should().Be($"test{Environment.NewLine}");
+
+        _setting.Verify(p => p.GetWriter(), Times.Once);
+    }
+
+    /// <summary>
+    /// Releases all resources used by the current instance of the <see cref="FlatFileWriterTest"/> class.
+    /// </summary>
+    public void Dispose()
+    {
+        _memoryStream.Dispose();
+        _streamWriter.Dispose();
+        _buffer.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

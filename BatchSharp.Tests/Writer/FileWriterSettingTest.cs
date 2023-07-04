@@ -17,7 +17,7 @@ public class FileWriterSettingTest
     {
         var setting = new FileWriterSetting("sample.txt");
         using var writer = setting.GetWriter();
-        Assert.Equal(Encoding.UTF8, writer.Encoding);
+        writer.Encoding.Should().Be(Encoding.UTF8);
     }
 
     /// <summary>
@@ -28,6 +28,6 @@ public class FileWriterSettingTest
     {
         var setting = new FileWriterSetting("sample.txt", Encoding.ASCII);
         using var writer = setting.GetWriter();
-        Assert.Equal(Encoding.ASCII, writer.Encoding);
+        writer.Encoding.Should().Be(Encoding.ASCII);
     }
 }
