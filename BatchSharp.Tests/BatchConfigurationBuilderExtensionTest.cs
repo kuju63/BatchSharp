@@ -10,15 +10,16 @@ namespace BatchSharp.Tests;
 /// </summary>
 public class BatchConfigurationBuilderExtensionTest
 {
+    private readonly ConfigurationBuilder _builder = new();
+
     /// <summary>
     /// Test for <see cref="BatchConfigurationBuilderExtension.AddBatchConfiguration(IConfigurationBuilder)"/>.
     /// </summary>
     [Fact]
     public void ShouldNotThrownExceptionWithoutArgs()
     {
-        var builder = new ConfigurationBuilder();
-        builder.AddBatchConfiguration();
-        Assert.NotNull(builder.Build());
+        _builder.AddBatchConfiguration();
+        _builder.Build().Should().NotBeNull();
     }
 
     /// <summary>
@@ -27,9 +28,8 @@ public class BatchConfigurationBuilderExtensionTest
     [Fact]
     public void ShouldNotThrownExceptionWithEnvironmentName()
     {
-        var builder = new ConfigurationBuilder();
-        builder.AddBatchConfiguration("Test");
-        Assert.NotNull(builder.Build());
+        _builder.AddBatchConfiguration("Test");
+        _builder.Build().Should().NotBeNull();
     }
 
     /// <summary>
@@ -38,9 +38,8 @@ public class BatchConfigurationBuilderExtensionTest
     [Fact]
     public void ShouldNotThrownExceptionWithEnvironment()
     {
-        var builder = new ConfigurationBuilder();
-        builder.AddBatchConfiguration("Test", "BATCH_");
-        Assert.NotNull(builder.Build());
+        _builder.AddBatchConfiguration("Test", "BATCH_");
+        _builder.Build().Should().NotBeNull();
     }
 
     /// <summary>
@@ -49,11 +48,10 @@ public class BatchConfigurationBuilderExtensionTest
     [Fact]
     public void ShouldNotThrownExceptionWithFullArguments()
     {
-        var builder = new ConfigurationBuilder();
         var env = new Mock<IHostEnvironment>();
         env.SetupGet(x => x.EnvironmentName).Returns("Test");
-        builder.AddBatchConfiguration(env.Object, "BATCH_", "application");
-        Assert.NotNull(builder.Build());
+        _builder.AddBatchConfiguration(env.Object, "BATCH_", "application");
+        _builder.Build().Should().NotBeNull();
 
         env.Verify(x => x.EnvironmentName, Times.Once);
     }
