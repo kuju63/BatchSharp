@@ -17,11 +17,12 @@ public class FlatFileReaderTest
     private readonly Mock<IFileReaderSetting> _setting = new();
 
     /// <summary>
-    /// Test for <see cref="FlatFileReader.Read"/>.
+    /// Test for <see cref="FlatFileReader.ReadAsync"/>.
     /// It is expected to return empty list.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact(DisplayName = "Should return empty list when read file is empty")]
-    public void ShouldReturnEmptyWhenFileIsEmpty()
+    public async Task ShouldReturnEmptyWhenFileIsEmpty()
     {
         // Arrange
         using var fileReader = new StreamReader(new MemoryStream());
@@ -30,11 +31,14 @@ public class FlatFileReaderTest
         using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
-        var result = reader.Read();
+        var result = reader.ReadAsync();
 
-        // Assert
-        result.Should().BeEmpty().And.BeAssignableTo<IEnumerable<string>>();
+        await foreach (var val in result)
+        {
+            val.Should().BeEmpty();
+        }
 
+        result.Should().NotBeNull().And.BeAssignableTo<IAsyncEnumerable<string>>();
         _setting.Verify(x => x.GetStreamReader(), Times.Once);
         _setting.VerifyGet(x => x.LineReadCount, Times.Never);
     }
@@ -43,8 +47,9 @@ public class FlatFileReaderTest
     /// Test for <see cref="FlatFileReader.Read"/>.
     /// It is expected to return single line.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact(DisplayName = "Should return single line when read file has single line")]
-    public void ShouldReturnSingleLineWhenFileHasSingleLine()
+    public async Task ShouldReturnSingleLineWhenFileHasSingleLine()
     {
         // Arrange
         var line = "012345"u8.ToArray();
@@ -54,11 +59,13 @@ public class FlatFileReaderTest
         using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
-        var result = reader.Read();
+        var result = reader.ReadAsync();
+        await foreach (var val in result)
+        {
+            val.Should().Be("012345");
+        }
 
         // Assert
-        result.Should().Equal("012345").And.BeAssignableTo<IEnumerable<string>>();
-
         _setting.Verify(x => x.GetStreamReader(), Times.Once);
         _setting.VerifyGet(x => x.LineReadCount);
     }
@@ -67,8 +74,9 @@ public class FlatFileReaderTest
     /// Test for <see cref="FlatFileReader.Read"/>.
     /// It is expected to return multiple line.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact(DisplayName = "Should return multiple line when line read count is 2")]
-    public void ShouldReturnMultiLine()
+    public async Task ShouldReturnMultiLine()
     {
         // Arrange
         var line = Encoding.UTF8.GetBytes($"012345{Environment.NewLine}98765");
@@ -78,11 +86,13 @@ public class FlatFileReaderTest
         using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
-        var result = reader.Read();
+        // var result = reader.ReadAsync();
+        await foreach (var result in reader.ReadAsync())
+        {
+            result.Should().Contain(result, becauseArgs: new object[] { "012345", "98765" });
+        }
 
         // Assert
-        result.Should().Equal("012345", "98765").And.BeAssignableTo<IEnumerable<string>>();
-
         _setting.Verify(x => x.GetStreamReader(), Times.Once);
         _setting.VerifyGet(x => x.LineReadCount);
     }

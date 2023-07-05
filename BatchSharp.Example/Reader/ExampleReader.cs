@@ -11,15 +11,16 @@ public class ExampleReader : IReader<string>
     private int _index;
 
     /// <inheritdoc cref="IReader{T}"/>
-    public IEnumerable<string> Read()
+    public async IAsyncEnumerable<string> ReadAsync()
     {
-        var result = _exampleDataSource.Skip(_index).Take(1).ToList();
+        yield return _exampleDataSource.Skip(_index).Take(1).First();
         _index++;
-        return result;
+        await Task.Delay(10);
     }
 
     /// <inheritdoc cref="IDisposable.Dispose"/>
     public void Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

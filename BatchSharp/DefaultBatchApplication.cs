@@ -42,11 +42,7 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     /// <inheritdoc/>
     public async Task RunAsync()
     {
-        IEnumerable<TRead> readData;
-        while ((readData = _reader.Read()).Any())
-        {
-            await RunAsync(readData, default);
-        }
+        await RunAsync(default);
     }
 
     /// <inheritdoc/>
@@ -54,38 +50,17 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     {
         if (!cancellationToken.IsCancellationRequested)
         {
-            IEnumerable<TRead> readData;
-            while ((readData = _reader.Read()).Any())
+            await foreach (var readData in _reader.ReadAsync().WithCancellation(cancellationToken))
             {
-                await RunAsync(readData, cancellationToken);
+                _logger.LogInformation("Read data: {Item}", readData);
+                var processingResult = _processor.Process(readData);
+                _logger.LogInformation("Processed data: {Item}", processingResult);
+                await _writer.WriteAsync(processingResult, cancellationToken);
             }
         }
         else
         {
             await Task.FromCanceled(cancellationToken);
-        }
-    }
-
-    private Task RunAsync(IEnumerable<TRead> readData, CancellationToken cancellationToken)
-    {
-        if (!cancellationToken.IsCancellationRequested)
-        {
-            return Task.Run(
-                async () =>
-                {
-                    foreach (var item in readData)
-                    {
-                        _logger.LogInformation("Read data: {Item}", item);
-                        var processingResult = _processor.Process(item);
-                        _logger.LogInformation("Processed data: {Item}", processingResult);
-                        await _writer.WriteAsync(processingResult, cancellationToken);
-                    }
-                },
-                cancellationToken);
-        }
-        else
-        {
-            return Task.FromCanceled(cancellationToken);
         }
     }
 }
