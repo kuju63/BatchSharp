@@ -14,13 +14,13 @@ This is inspired from Spring Batch.
 BatchSharp can be installed using the Nuget package manager or the `dotnet` CLI.
 
 - Package Manager
-    
+
     ```powershell
     Install-Package BatchSharp
     ```
 
 - dotnet CLI
-    
+
     ```bash
     dotnet add package BatchSharp
     ```
