@@ -86,7 +86,6 @@ public class FlatFileReaderTest
         using var reader = new FlatFileReader(_logger.Object, _setting.Object);
 
         // Act
-        // var result = reader.ReadAsync();
         await foreach (var result in reader.ReadAsync())
         {
             result.Should().Contain(result, becauseArgs: new object[] { "012345", "98765" });
