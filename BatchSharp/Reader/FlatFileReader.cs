@@ -25,17 +25,14 @@ public class FlatFileReader : IReader<string>
         _reader = setting.GetStreamReader();
     }
 
-    /// <summary>
-    /// Read single line from the file.
-    /// </summary>
-    /// <returns>File content of single line.</returns>
-    public IEnumerable<string> Read()
+    /// <inheritdoc/>
+    public async IAsyncEnumerable<string> ReadAsync()
     {
         if (!_reader.EndOfStream)
         {
             for (int i = 0; i < _setting.LineReadCount && _reader.Peek() >= 0; i++)
             {
-                var line = _reader.ReadLine();
+                var line = await _reader.ReadLineAsync();
                 if (line is not null)
                 {
                     yield return line;

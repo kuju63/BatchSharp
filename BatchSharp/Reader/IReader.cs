@@ -11,5 +11,5 @@ public interface IReader<out T> : IDisposable
     /// Read data from a data source.
     /// </summary>
     /// <returns>Data.</returns>
-    IEnumerable<T> Read();
+    IAsyncEnumerable<T> ReadAsync();
 }
