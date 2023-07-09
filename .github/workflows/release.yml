@@ -41,14 +41,27 @@ jobs:
             ${{ runner.os }}-nuget-
       - name: Install dependencies
         run: dotnet restore
+      - name: Install docfx
+        run: dotnet tool update -g docfx
+      - name: Build
+        run: dotnet build --no-restore -c Release
       - name: Packaging
-        run: dotnet pack --no-restore --output nupkgs -p:PackageVersion=${{ inputs.release_version }}
+        run: dotnet pack --no-restore --no-build --output nupkgs -p:PackageVersion=${{ inputs.release_version }}
+      - name: Create api docs
+        run: docfx build docs/docfx.json
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: BatchSharp
           path: nupkgs/*.nupkg
           if-no-files-found: error
+      - name: Upload docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: BatchSharp-docs
+          path: docs/_site
+          if-no-files-found: error
+
   publish:
     runs-on: ubuntu-latest
     needs: build
@@ -88,3 +101,29 @@ jobs:
           artifacts: "*.nupkg"
           draft: ${{ inputs.draft_release }}
           prerelease: ${{ inputs.pre_release }}
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    permissions:
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: BatchSharp-docs
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
