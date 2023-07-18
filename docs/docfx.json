@@ -4,7 +4,7 @@
       "src": [
         {
           "files": [
-            "bin/Release/net7.0/*.dll"
+            "BatchSharp.csproj"
           ],
           "src": "../BatchSharp"
         }
@@ -18,8 +18,9 @@
       "memberLayout": "separatePages",
       "allowCompilationErrors": false,
       "properties": {
-        "TargetFramework": "net7.0",
-      }
+        "TargetFramework": "net7.0"
+      },
+      "shouldSkipMarkup": true
     }
   ],
   "build": {
