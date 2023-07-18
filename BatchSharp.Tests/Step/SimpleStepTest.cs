@@ -19,6 +19,7 @@ public class SimpleStepTest : IDisposable
     private readonly Mock<IWriter<int>> _writer = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly Mock<ILogger<SimpleStep<string, int>>> _logger = new();
+    private readonly Mock<IStepState> _stepState = new();
 
     /// <summary>
     /// Release resources.
@@ -38,15 +39,22 @@ public class SimpleStepTest : IDisposable
         _reader.Setup(r => r.ReadAsync());
         _processor.Setup(p => p.Process(It.IsAny<string>()));
         _writer.Setup(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
+        _stepState.Setup(s => s.CancelStep());
         _cancellationTokenSource.Cancel();
 
-        var step = new SimpleStep<string, int>(_logger.Object, _reader.Object, _processor.Object, _writer.Object);
+        var step = new SimpleStep<string, int>(
+            _logger.Object,
+            _stepState.Object,
+            _reader.Object,
+            _processor.Object,
+            _writer.Object);
 
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await step.ExecuteAsync(_cancellationTokenSource.Token));
 
         _reader.Verify((r) => r.ReadAsync(), Times.Never());
         _processor.Verify(p => p.Process(It.IsAny<string>()), Times.Never());
         _writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
+        _stepState.Verify(s => s.CancelStep(), Times.Once());
     }
 
     /// <summary>
@@ -68,6 +76,7 @@ public class SimpleStepTest : IDisposable
         var step =
             new SimpleStep<string, int>(
                 _logger.Object,
+                _stepState.Object,
                 _reader.Object,
                 _processor.Object,
                 _writer.Object);
@@ -94,6 +103,7 @@ public class SimpleStepTest : IDisposable
         var step =
             new SimpleStep<string, int>(
                 _logger.Object,
+                _stepState.Object,
                 _reader.Object,
                 _processor.Object,
                 _writer.Object);

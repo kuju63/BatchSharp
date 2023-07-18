@@ -20,32 +20,38 @@ public class SimpleStep<T1, T2> : IStep<T1, T2>, IDisposable
     private readonly IProcessor<T1, T2> _processor;
     private readonly IWriter<T2> _writer;
     private readonly ILogger<SimpleStep<T1, T2>> _logger;
+    private readonly IStepState _stepState;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SimpleStep{T1, T2}"/> class.
     /// </summary>
     /// <param name="logger">Instance of logger.</param>
+    /// <param name="stepState">Instance of step state.</param>
     /// <param name="reader">Instance of reader class for load the data from data source.</param>
     /// <param name="processor">Instance of processor.</param>
     /// <param name="writer">Instance of writer for output processor result.</param>
-    public SimpleStep(ILogger<SimpleStep<T1, T2>> logger, IReader<T1> reader, IProcessor<T1, T2> processor, IWriter<T2> writer)
+    public SimpleStep(
+        ILogger<SimpleStep<T1, T2>> logger,
+        IStepState stepState,
+        IReader<T1> reader,
+        IProcessor<T1, T2> processor,
+        IWriter<T2> writer)
     {
         _reader = reader;
         _processor = processor;
         _writer = writer;
         _logger = logger;
+        _stepState = stepState;
     }
 
-    /// <summary>
-    /// Release resources.
-    /// </summary>
+    /// <inheritdoc cref="IDisposable.Dispose" />
     public void Dispose()
     {
         _cancellationTokenSource.Dispose();
         GC.SuppressFinalize(this);
     }
 
-    /// <inheritdoc cref="IStep" />
+    /// <inheritdoc cref="IStep.ExecuteAsync(CancellationToken)" />
     public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         if (!cancellationToken.IsCancellationRequested)
@@ -60,6 +66,7 @@ public class SimpleStep<T1, T2> : IStep<T1, T2>, IDisposable
         }
         else
         {
+            _stepState.CancelStep();
             await Task.FromCanceled(cancellationToken);
         }
     }
