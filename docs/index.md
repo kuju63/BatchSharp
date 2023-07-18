@@ -2,7 +2,7 @@
 
 Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
 
-## Quick Start Notes
+## Quick Start Guide
 
 1. Install BatchSharp
 
@@ -80,4 +80,10 @@ Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to wri
 
     var app = builder.Build();
     await app.RunAsync();
+    ```
+
+4. Run batch application
+
+    ```bash
+    dotnet run
     ```
