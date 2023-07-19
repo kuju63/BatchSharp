@@ -33,6 +33,7 @@ public class SimpleStepTest : IDisposable
     /// <summary>
     /// Should return canceled task.
     /// </summary>
+    /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
     [Fact]
     public async Task ShouldReturnCanceledTaskAsync()
     {
