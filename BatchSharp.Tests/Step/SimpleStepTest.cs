@@ -34,7 +34,7 @@ public class SimpleStepTest : IDisposable
     /// Should return canceled task.
     /// </summary>
     [Fact]
-    public async void ShouldReturnCanceledTask()
+    public async Task ShouldReturnCanceledTaskAsync()
     {
         _reader.Setup(r => r.ReadAsync());
         _processor.Setup(p => p.Process(It.IsAny<string>()));
