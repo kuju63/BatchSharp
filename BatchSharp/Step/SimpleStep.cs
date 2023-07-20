@@ -11,7 +11,7 @@ namespace BatchSharp.Step;
 /// </summary>
 /// <typeparam name="T1">Type of the input.</typeparam>
 /// <typeparam name="T2">Type of the output.</typeparam>
-public class SimpleStep<T1, T2> : IStep<T1, T2>, IDisposable
+public class SimpleStep<T1, T2> : IStep, IDisposable
     where T1 : notnull
     where T2 : notnull
 {
