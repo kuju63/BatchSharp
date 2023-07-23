@@ -41,6 +41,8 @@ public class SimpleStepTest : IDisposable
         _processor.Setup(p => p.Process(It.IsAny<string>()));
         _writer.Setup(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
         _stepState.Setup(s => s.CancelStep());
+        _stepState.Setup(s => s.StartStep());
+        _stepState.Setup(s => s.CompleteStep());
         _cancellationTokenSource.Cancel();
 
         var step = new SimpleStep<string, int>(
@@ -56,6 +58,8 @@ public class SimpleStepTest : IDisposable
         _processor.Verify(p => p.Process(It.IsAny<string>()), Times.Never());
         _writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
         _stepState.Verify(s => s.CancelStep(), Times.Once());
+        _stepState.Verify(s => s.StartStep(), Times.Once());
+        _stepState.Verify(s => s.CompleteStep(), Times.Never());
     }
 
     /// <summary>
@@ -74,6 +78,9 @@ public class SimpleStepTest : IDisposable
             .Returns(4);
         _writer.SetupSequence(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        _stepState.Setup(s => s.StartStep());
+        _stepState.Setup(s => s.CancelStep());
+        _stepState.Setup(s => s.CompleteStep());
         var step =
             new SimpleStep<string, int>(
                 _logger.Object,
@@ -87,6 +94,9 @@ public class SimpleStepTest : IDisposable
         _reader.Verify((r) => r.ReadAsync(), Times.Once());
         _processor.Verify(p => p.Process("test"), Times.Once());
         _writer.Verify(x => x.WriteAsync(It.IsIn(4), It.IsAny<CancellationToken>()), Times.Once());
+        _stepState.Verify(s => s.StartStep(), Times.Once());
+        _stepState.Verify(s => s.CancelStep(), Times.Never());
+        _stepState.Verify(s => s.CompleteStep(), Times.Once());
     }
 
     /// <summary>
@@ -101,6 +111,10 @@ public class SimpleStepTest : IDisposable
             .Returns(AsyncEnumerable.Empty<string>());
         _processor.SetupSequence(x => x.Process(It.IsAny<string>()));
         _writer.SetupSequence(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()));
+        _stepState.Setup(s => s.StartStep());
+        _stepState.Setup(s => s.CancelStep());
+        _stepState.Setup(s => s.CompleteStep());
+
         var step =
             new SimpleStep<string, int>(
                 _logger.Object,
@@ -114,5 +128,8 @@ public class SimpleStepTest : IDisposable
         _reader.Verify(r => r.ReadAsync(), Times.Once());
         _processor.Verify(x => x.Process(It.IsAny<string>()), Times.Never());
         _writer.Verify(x => x.WriteAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never());
+        _stepState.Verify(s => s.StartStep(), Times.Once());
+        _stepState.Verify(s => s.CancelStep(), Times.Never());
+        _stepState.Verify(s => s.CompleteStep(), Times.Once());
     }
 }

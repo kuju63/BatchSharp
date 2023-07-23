@@ -54,6 +54,7 @@ public class SimpleStep<T1, T2> : IStep, IDisposable
     /// <inheritdoc cref="IStep.ExecuteAsync(CancellationToken)" />
     public async Task ExecuteAsync(CancellationToken cancellationToken)
     {
+        _stepState.StartStep();
         if (!cancellationToken.IsCancellationRequested)
         {
             await foreach (var readData in _reader.ReadAsync().WithCancellation(cancellationToken))
@@ -63,6 +64,8 @@ public class SimpleStep<T1, T2> : IStep, IDisposable
                 _logger.LogInformation("Processed data: {Item}", processingResult);
                 await _writer.WriteAsync(processingResult, cancellationToken);
             }
+
+            _stepState.CompleteStep();
         }
         else
         {
