@@ -42,6 +42,11 @@ public interface IStepState
     public void CancelStep(Exception exception);
 
     /// <summary>
+    /// Complete the step.
+    /// </summary>
+    public void CompleteStep();
+
+    /// <summary>
     /// Start the step.
     /// </summary>
     public void StartStep();

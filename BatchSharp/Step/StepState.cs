@@ -43,6 +43,18 @@ public class StepState : IStepState
         IsErrored = true;
     }
 
+    /// <inheritdoc cref="IStepState.CompleteStep()"/>
+    public void CompleteStep()
+    {
+        if (IsCanceled || !IsWorking)
+        {
+            throw new InvalidOperationException("The step is already canceled or completed.");
+        }
+
+        IsCompleted = true;
+        IsWorking = false;
+    }
+
     /// <inheritdoc cref="IStepState.StartStep()"/>
     public void StartStep()
     {
@@ -57,6 +69,7 @@ public class StepState : IStepState
     private void Cancel(Exception? exception)
     {
         IsCanceled = true;
+        IsWorking = false;
         if (exception is not null)
         {
             HandledException = exception;

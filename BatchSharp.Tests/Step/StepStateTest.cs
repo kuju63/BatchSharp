@@ -88,4 +88,58 @@ public class StepStateTest
 
         action.Should().Throw<InvalidOperationException>();
     }
+
+    /// <summary>
+    /// Test for <see cref="StepState.CompleteStep()"/>.
+    /// </summary>
+    [Fact]
+    public void ShouldCompleteStep()
+    {
+        var state = new StepState();
+        state.StartStep();
+
+        state.CompleteStep();
+
+        state.IsCanceled.Should().BeFalse();
+        state.IsCompleted.Should().BeTrue();
+        state.IsErrored.Should().BeFalse();
+        state.HandledException.Should().BeNull();
+        state.IsWorking.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Test for <see cref="StepState.CompleteStep()"/>.
+    /// </summary>
+    [Fact]
+    public void ShouldThrownInvalidOperationExceptionWhenStartStepWithoutStart()
+    {
+        var state = new StepState();
+
+        Action action = () => state.CompleteStep();
+
+        action.Should().Throw<InvalidOperationException>();
+
+        state.IsCanceled.Should().BeFalse();
+        state.IsCompleted.Should().BeFalse();
+        state.IsErrored.Should().BeFalse();
+        state.HandledException.Should().BeNull();
+        state.IsWorking.Should().BeFalse();
+    }
+
+    /// <summary>
+    /// Test for <see cref="StepState.CancelStep()"/>.
+    /// </summary>
+    [Fact]
+    public void ShouldThrownInvalidOperationExceptionWhenStartStepAtCanceled()
+    {
+        var state = new StepState();
+        state.StartStep();
+        state.CancelStep();
+
+        state.IsCanceled.Should().BeTrue();
+        state.IsCompleted.Should().BeFalse();
+        state.IsErrored.Should().BeFalse();
+        state.HandledException.Should().BeNull();
+        state.IsWorking.Should().BeFalse();
+    }
 }
