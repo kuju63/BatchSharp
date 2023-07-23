@@ -46,7 +46,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore -c Release
       - name: Packaging
-        run: dotnet pack --no-restore --no-build --output nupkgs -p:PackageVersion=${{ inputs.release_version }}
+        run: dotnet pack --no-restore --no-build --output nupkgs -c Release -p:PackageVersion=${{ inputs.release_version }}
       - name: Create api docs
         run: docfx build docs/docfx.json
       - name: Upload artifact
