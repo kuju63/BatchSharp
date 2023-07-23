@@ -27,7 +27,10 @@ public class StepState : IStepState
     /// <inheritdoc cref="IStepState.HandledException"/>
     public Exception? HandledException { get; private set; }
 
-    /// <inheritdoc cref="IStepState.CancelStep"/>
+    /// <inheritdoc cref="IStepState.IsWorking"/>
+    public bool IsWorking { get; private set; }
+
+    /// <inheritdoc cref="IStepState.CancelStep()"/>
     public void CancelStep()
     {
         Cancel(null);
@@ -38,6 +41,17 @@ public class StepState : IStepState
     {
         Cancel(exception);
         IsErrored = true;
+    }
+
+    /// <inheritdoc cref="IStepState.StartStep()"/>
+    public void StartStep()
+    {
+        if (IsCanceled || IsCompleted)
+        {
+            throw new InvalidOperationException("The step is already canceled or completed.");
+        }
+
+        IsWorking = true;
     }
 
     private void Cancel(Exception? exception)
