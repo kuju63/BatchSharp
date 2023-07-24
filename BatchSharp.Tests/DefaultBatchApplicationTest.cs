@@ -20,8 +20,9 @@ public class DefaultBatchApplicationTest
     /// <summary>
     /// Test for <see cref="DefaultBatchApplication{TRead,TResult}.RunAsync()"/>.
     /// </summary>
+    /// <returns>Asynchronous task.</returns>
     [Fact]
-    public async void ShouldReturnCompletedWhenExecutionSuccess()
+    public async Task ShouldReturnCompletedWhenExecutionSuccess()
     {
         _step.Setup(x => x.ExecuteAsync(default));
         var application = new DefaultBatchApplication(_logger.Object, _step.Object);
