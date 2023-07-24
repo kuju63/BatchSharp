@@ -5,6 +5,7 @@ using BatchSharp.Example.Reader;
 using BatchSharp.Example.Writer;
 using BatchSharp.Processor;
 using BatchSharp.Reader;
+using BatchSharp.Step;
 using BatchSharp.Writer;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -22,6 +23,8 @@ var builder = Host.CreateDefaultBuilder(args)
             .AddScoped<IReader<string>, ExampleReader>();
         services.AddScoped<IProcessor<string, int>, ExampleProcessor>();
         services.AddScoped<IWriter<int>, ExampleWriter>();
+        services.AddScoped<IStep, SimpleStep<string, int>>();
+        services.AddScoped<IStepState, StepState>();
     });
 
 var app = builder.Build();

@@ -1,5 +1,8 @@
+using System.Runtime.CompilerServices;
+
 using BatchSharp.Processor;
 using BatchSharp.Reader;
+using BatchSharp.Step;
 using BatchSharp.Writer;
 
 using Microsoft.Extensions.Logging;
@@ -9,34 +12,22 @@ namespace BatchSharp;
 /// <summary>
 /// Class for running a batch application.
 /// </summary>
-/// <typeparam name="TRead">DataBinding class of datasource.</typeparam>
-/// <typeparam name="TResult">Processing result type.</typeparam>
-public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
-    where TRead : notnull
-    where TResult : notnull
+public class DefaultBatchApplication : IBatchApplication
 {
-    private readonly ILogger<DefaultBatchApplication<TRead, TResult>> _logger;
-    private readonly IReader<TRead> _reader;
-    private readonly IProcessor<TRead, TResult> _processor;
-    private readonly IWriter<TResult> _writer;
+    private readonly ILogger<DefaultBatchApplication> _logger;
+    private readonly IStep _step;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultBatchApplication{TRead, TResult}"/> class.
+    /// Initializes a new instance of the <see cref="DefaultBatchApplication"/> class.
     /// </summary>
     /// <param name="logger">Logger.</param>
-    /// <param name="reader">Reader instance.</param>
-    /// <param name="processor">Processor instance.</param>
-    /// <param name="writer">Writer instance.</param>
+    /// <param name="step">Step.</param>
     public DefaultBatchApplication(
-        ILogger<DefaultBatchApplication<TRead, TResult>> logger,
-        IReader<TRead> reader,
-        IProcessor<TRead, TResult> processor,
-        IWriter<TResult> writer)
+        ILogger<DefaultBatchApplication> logger,
+        IStep step)
     {
         _logger = logger;
-        _reader = reader;
-        _processor = processor;
-        _writer = writer;
+        _step = step;
     }
 
     /// <inheritdoc/>
@@ -50,13 +41,9 @@ public class DefaultBatchApplication<TRead, TResult> : IBatchApplication
     {
         if (!cancellationToken.IsCancellationRequested)
         {
-            await foreach (var readData in _reader.ReadAsync().WithCancellation(cancellationToken))
-            {
-                _logger.LogInformation("Read data: {Item}", readData);
-                var processingResult = _processor.Process(readData);
-                _logger.LogInformation("Processed data: {Item}", processingResult);
-                await _writer.WriteAsync(processingResult, cancellationToken);
-            }
+            _logger.LogDebug("Start batch application.");
+            await _step.ExecuteAsync(cancellationToken);
+            _logger.LogDebug("End batch application.");
         }
         else
         {
