@@ -54,6 +54,8 @@ BatchSharp can be installed using the Nuget package manager or the `dotnet` CLI.
                 .AddScoped<IReader<string>, ExampleReader>();
             services.AddScoped<IProcessor<string, int>, ExampleProcessor>();
             services.AddScoped<IWriter<int>, ExampleWriter>();
+            services.AddScoped<IStep, SimpleStep<string, int>>();
+            services.AddScoped<IStepState, StepState>();
         });
     
     var app = builder.Build();
@@ -69,24 +71,12 @@ BatchSharp can be installed using the Nuget package manager or the `dotnet` CLI.
     `IReader` is used to read input data. `IProcessor` is used to process input data. `IWriter` is used to write output data. These class are injected by DI container.
 
     ```csharp
-    /// <summary>
-    /// Class of example batch application.
-    /// </summary>
     public class ExampleBatchApplication : DefaultBatchApplication<string, int>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExampleBatchApplication"/> class.
-        /// </summary>
-        /// <param name="logger">Logger.</param>
-        /// <param name="reader">Reader.</param>
-        /// <param name="processor">Processor.</param>
-        /// <param name="writer">Writer.</param>
         public ExampleBatchApplication(
             ILogger<ExampleBatchApplication> logger,
-            IReader<string> reader,
-            IProcessor<string, int> processor,
-            IWriter<int> writer)
-            : base(logger, reader, processor, writer)
+            IStep step)
+            : base(logger, step)
         {
         }
     }

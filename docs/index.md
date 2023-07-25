@@ -76,6 +76,8 @@ Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to wri
             services.AddScoped<IFileWriterSetting, FileWriterSetting>(c => new FileWriterSetting("output.txt"));
             // Register writer class
             services.AddScoped<IWriter<int>, ExampleWriter>();
+            services.AddScoped<IStep, SimpleStep<string, int>>();
+            services.AddScoped<IStepState, StepState>();
         });
 
     var app = builder.Build();
