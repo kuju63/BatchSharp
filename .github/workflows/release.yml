@@ -47,14 +47,32 @@ jobs:
         run: dotnet build --no-restore -c Release
       - name: Packaging
         run: dotnet pack --no-restore --no-build --output nupkgs -c Release -p:PackageVersion=${{ inputs.release_version }}
-      - name: Create api docs
-        run: docfx build docs/docfx.json
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: BatchSharp
           path: nupkgs/*.nupkg
           if-no-files-found: error
+
+  build-app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Generate metadata
+        run: docfx metadata docs/docfx.json
+      - name: Create api docs
+        run: docfx build docs/docfx.json
       - name: Upload docs
         uses: actions/upload-artifact@v3
         with:
@@ -111,7 +129,9 @@ jobs:
       pages: write
       id-token: write
     runs-on: ubuntu-latest
-    needs: build
+    needs:
+      - build
+      - build-app
     steps:
       - name: Download Artifact
         uses: actions/download-artifact@v3
