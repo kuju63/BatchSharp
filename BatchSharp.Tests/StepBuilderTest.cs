@@ -5,9 +5,9 @@ using Moq;
 namespace BatchSharp.Tests;
 
 /// <summary>
-/// Represents test class for <see cref="JobBuilder"/>.
+/// Represents test class for <see cref="StepBuilder"/>.
 /// </summary>
-public class JobBuilderTest
+public class StepBuilderTest
 {
     /// <summary>
     /// Should return empty step collection when no step added.
@@ -16,7 +16,7 @@ public class JobBuilderTest
     {
         // Arrange
         var services = new Mock<IServiceProvider>().Object;
-        var jobBuilder = new JobBuilder(services);
+        var jobBuilder = new StepBuilder(services);
 
         // Act
         var steps = jobBuilder.Build();
@@ -32,7 +32,7 @@ public class JobBuilderTest
     {
         // Arrange
         var services = new Mock<IServiceProvider>().Object;
-        var jobBuilder = new JobBuilder(services);
+        var jobBuilder = new StepBuilder(services);
         jobBuilder.AddStep(_ => new Mock<IStep>().Object);
 
         // Act

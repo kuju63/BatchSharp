@@ -16,11 +16,11 @@ public static class BatchHost
     /// <param name="hostBuilder">Host builder.</param>
     /// <param name="configure">Function for configure job.</param>
     /// <returns>Host builder.</returns>
-    public static IHostBuilder ConfigureBatch(this IHostBuilder hostBuilder, Func<JobBuilder, StepCollection> configure)
+    public static IHostBuilder ConfigureBatch(this IHostBuilder hostBuilder, Func<StepBuilder, StepCollection> configure)
     {
         hostBuilder.ConfigureServices((context, services) => services.AddSingleton(sp =>
         {
-            var builder = new JobBuilder(sp);
+            var builder = new StepBuilder(sp);
             return configure(builder);
         }));
         return hostBuilder;
