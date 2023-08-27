@@ -16,11 +16,11 @@ public class ExampleBatchApplication : DefaultBatchApplication
     /// Initializes a new instance of the <see cref="ExampleBatchApplication"/> class.
     /// </summary>
     /// <param name="logger">Logger.</param>
-    /// <param name="step">Step.</param>
+    /// <param name="steps">Steps.</param>
     public ExampleBatchApplication(
         ILogger<ExampleBatchApplication> logger,
-        IStep step)
-        : base(logger, step)
+        StepCollection steps)
+        : base(logger, steps)
     {
     }
 }

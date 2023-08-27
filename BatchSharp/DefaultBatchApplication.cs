@@ -15,19 +15,19 @@ namespace BatchSharp;
 public class DefaultBatchApplication : IBatchApplication
 {
     private readonly ILogger<DefaultBatchApplication> _logger;
-    private readonly IStep _step;
+    private readonly StepCollection _steps;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultBatchApplication"/> class.
     /// </summary>
     /// <param name="logger">Logger.</param>
-    /// <param name="step">Step.</param>
+    /// <param name="steps">Steps.</param>
     public DefaultBatchApplication(
         ILogger<DefaultBatchApplication> logger,
-        IStep step)
+        StepCollection steps)
     {
         _logger = logger;
-        _step = step;
+        _steps = steps;
     }
 
     /// <inheritdoc/>
@@ -42,7 +42,7 @@ public class DefaultBatchApplication : IBatchApplication
         if (!cancellationToken.IsCancellationRequested)
         {
             _logger.LogDebug("Start batch application.");
-            await _step.ExecuteAsync(cancellationToken);
+            _steps.ForEach(async step => await step.ExecuteAsync(cancellationToken));
             _logger.LogDebug("End batch application.");
         }
         else

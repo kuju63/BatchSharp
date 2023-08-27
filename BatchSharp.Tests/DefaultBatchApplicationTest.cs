@@ -16,6 +16,15 @@ public class DefaultBatchApplicationTest
 {
     private readonly Mock<ILogger<DefaultBatchApplication>> _logger = new();
     private readonly Mock<IStep> _step = new();
+    private readonly StepCollection _steps = new();
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultBatchApplicationTest"/> class.
+    /// </summary>
+    public DefaultBatchApplicationTest()
+    {
+        _steps.Add(_step.Object);
+    }
 
     /// <summary>
     /// Test for <see cref="DefaultBatchApplication{TRead,TResult}.RunAsync()"/>.
@@ -25,7 +34,7 @@ public class DefaultBatchApplicationTest
     public async Task ShouldReturnCompletedWhenExecutionSuccess()
     {
         _step.Setup(x => x.ExecuteAsync(default));
-        var application = new DefaultBatchApplication(_logger.Object, _step.Object);
+        var application = new DefaultBatchApplication(_logger.Object, _steps);
 
         await application.RunAsync();
 
@@ -43,7 +52,7 @@ public class DefaultBatchApplicationTest
         var application =
             new DefaultBatchApplication(
                 _logger.Object,
-                _step.Object);
+                _steps);
 
         using var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.Cancel();
