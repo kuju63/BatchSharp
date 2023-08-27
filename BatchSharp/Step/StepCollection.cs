@@ -9,7 +9,7 @@ public class StepCollection : List<IStep>, IReadOnlyList<IStep>
     /// Initializes a new instance of the <see cref="StepCollection"/> class.
     /// </summary>
     public StepCollection()
-        : base()
+        : this(Enumerable.Empty<IStep>())
     {
     }
 

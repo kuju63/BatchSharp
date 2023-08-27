@@ -18,7 +18,7 @@ public static class BatchHost
     /// <returns>Host builder.</returns>
     public static IHostBuilder ConfigureBatch(this IHostBuilder hostBuilder, Func<StepBuilder, StepCollection> configure)
     {
-        hostBuilder.ConfigureServices((context, services) => services.AddSingleton(sp =>
+        hostBuilder.ConfigureServices((_, services) => services.AddSingleton(sp =>
         {
             var builder = new StepBuilder(sp);
             return configure(builder);
