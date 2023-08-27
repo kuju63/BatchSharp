@@ -12,6 +12,7 @@ public class StepBuilderTest
     /// <summary>
     /// Should return empty step collection when no step added.
     /// </summary>
+    [Fact]
     public void ShouldReturnEmptyStepCollectionWhenNoStepAdded()
     {
         // Arrange
@@ -28,6 +29,7 @@ public class StepBuilderTest
     /// <summary>
     /// Should return step collection with one step when one step added.
     /// </summary>
+    [Fact]
     public void ShouldReturnStepCollectionWithOneStepWhenOneStepAdded()
     {
         // Arrange
