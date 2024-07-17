@@ -29,9 +29,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.x
       - name: Restore cache
         uses: actions/cache@v3
         with:
@@ -59,7 +59,7 @@ jobs:
       - name: Setup
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 8.x
       - name: Restore cache
         uses: actions/cache@v3
         with:
