@@ -87,7 +87,7 @@ jobs:
       packages: write
     steps:
       - name: download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: BatchSharp
       - name: Publish NuGet IT
@@ -104,7 +104,7 @@ jobs:
       contents: write
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: BatchSharp
       - name: Create Release
@@ -134,7 +134,7 @@ jobs:
       - build-app
     steps:
       - name: Download Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: BatchSharp-docs
       - name: Setup Pages
